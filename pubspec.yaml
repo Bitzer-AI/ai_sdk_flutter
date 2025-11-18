@@ -1,7 +1,9 @@
 name: ai_sdk_flutter
 description: A Flutter package that consumes Vercel AI SDK v5 streams, providing chat functionality, tool calling, and streaming capabilities for AI-powered applications.
 version: 0.1.0
-homepage: https://github.com/your-org/ai_sdk_flutter
+homepage: https://github.com/billmalea/ai_sdk_flutter
+repository: https://github.com/billmalea/ai_sdk_flutter
+issue_tracker: https://github.com/billmalea/ai_sdk_flutter/issues
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
