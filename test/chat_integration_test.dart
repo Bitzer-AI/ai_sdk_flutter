@@ -9,7 +9,7 @@ class MockChatTransport implements ChatTransport {
   final bool shouldError;
   final String? errorMessage;
   StreamController<UIMessageChunk>? _controller;
-  
+
   MockChatTransport({
     required this.chunksToSend,
     this.delayBetweenChunks = const Duration(milliseconds: 5),
@@ -32,7 +32,7 @@ class MockChatTransport implements ChatTransport {
     }
 
     _controller = StreamController<UIMessageChunk>();
-    
+
     Future.microtask(() async {
       for (final chunk in chunksToSend) {
         await Future.delayed(delayBetweenChunks);
@@ -85,7 +85,8 @@ void main() {
       if (chat.messages.isNotEmpty) {
         expect(chat.messages[0].role, MessageRole.user);
         if (chat.messages[0].parts.isNotEmpty) {
-          expect((chat.messages[0].parts[0] as TextUIPart).text, 'Test message');
+          expect(
+              (chat.messages[0].parts[0] as TextUIPart).text, 'Test message');
         }
       }
       if (chat.messages.length >= 2 && chat.messages[1].parts.isNotEmpty) {
@@ -139,7 +140,7 @@ void main() {
         chunksToSend: chunks,
         delayBetweenChunks: const Duration(milliseconds: 30),
       );
-      
+
       final chat = Chat(
         transport: transport,
         options: const ChatOptions(id: 'test-chat'),
@@ -149,14 +150,14 @@ void main() {
       chat.statusStream.listen(statuses.add);
 
       expect(chat.status, ChatStatus.ready);
-      
+
       chat.sendMessage('Test');
       await Future.delayed(const Duration(milliseconds: 40));
-      
+
       expect(statuses, contains(ChatStatus.streaming));
-      
+
       await Future.delayed(const Duration(milliseconds: 60));
-      
+
       expect(chat.status, ChatStatus.ready);
     });
 
@@ -167,7 +168,7 @@ void main() {
         errorMessage: 'Network error',
       );
 
-      String? capturedError;      
+      String? capturedError;
       final chat = Chat(
         transport: transport,
         options: ChatOptions(
@@ -213,14 +214,15 @@ void main() {
     test('should support stopping stream', () async {
       final chunks = <UIMessageChunk>[
         const StartChunk(messageId: 'msg-1'),
-        ...List.generate(50, (i) => TextDeltaChunk(delta: 'word$i ', id: 'msg-1')),
+        ...List.generate(
+            50, (i) => TextDeltaChunk(delta: 'word$i ', id: 'msg-1')),
       ];
 
       final transport = MockChatTransport(
         chunksToSend: chunks,
         delayBetweenChunks: const Duration(milliseconds: 20),
       );
-      
+
       final chat = Chat(
         transport: transport,
         options: const ChatOptions(id: 'test-chat'),
@@ -228,9 +230,9 @@ void main() {
 
       chat.sendMessage('Long message');
       await Future.delayed(const Duration(milliseconds: 50));
-      
+
       chat.stop();
-      
+
       await Future.delayed(const Duration(milliseconds: 50));
       expect(chat.status, ChatStatus.ready);
     });
@@ -244,7 +246,7 @@ void main() {
 
       UIMessage? finishedMessage;
       final transport = MockChatTransport(chunksToSend: chunks);
-      
+
       final chat = Chat(
         transport: transport,
         options: ChatOptions(
@@ -272,7 +274,7 @@ void main() {
           const FinishChunk(finishReason: 'stop'),
         ],
       );
-      
+
       final chat = Chat(
         transport: transport,
         options: const ChatOptions(id: 'test-chat'),

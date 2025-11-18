@@ -155,11 +155,14 @@ void main() {
     test('fromString parses correctly', () {
       expect(FinishReasonExtension.fromString('stop'), FinishReason.stop);
       expect(FinishReasonExtension.fromString('length'), FinishReason.length);
-      expect(FinishReasonExtension.fromString('content-filter'), FinishReason.contentFilter);
-      expect(FinishReasonExtension.fromString('tool-calls'), FinishReason.toolCalls);
+      expect(FinishReasonExtension.fromString('content-filter'),
+          FinishReason.contentFilter);
+      expect(FinishReasonExtension.fromString('tool-calls'),
+          FinishReason.toolCalls);
       expect(FinishReasonExtension.fromString('error'), FinishReason.error);
       expect(FinishReasonExtension.fromString('other'), FinishReason.other);
-      expect(FinishReasonExtension.fromString('unknown-value'), FinishReason.unknown);
+      expect(FinishReasonExtension.fromString('unknown-value'),
+          FinishReason.unknown);
     });
   });
 

@@ -220,14 +220,15 @@ class ToolUIPart extends UIMessagePart {
     return ToolUIPart(
       type: json['type'] as String,
       toolCallId: json['toolCallId'] as String,
-      state: ToolCallState.values
-          .firstWhere((s) => s.name == json['state'].toString().replaceAll('-', '_')),
+      state: ToolCallState.values.firstWhere(
+          (s) => s.name == json['state'].toString().replaceAll('-', '_')),
       input: json['input'],
       output: json['output'],
       errorText: json['errorText'] as String?,
       providerExecuted: json['providerExecuted'] as bool?,
       title: json['title'] as String?,
-      callProviderMetadata: json['callProviderMetadata'] as Map<String, dynamic>?,
+      callProviderMetadata:
+          json['callProviderMetadata'] as Map<String, dynamic>?,
     );
   }
 

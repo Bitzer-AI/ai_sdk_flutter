@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'ui_message_part.dart';
 
 /// Represents a message in the chat UI, similar to Vercel AI SDK's UIMessage.
-/// 
+///
 /// A message can be from the system, user, or assistant and contains
 /// an array of parts representing different types of content.
 class UIMessage extends Equatable {

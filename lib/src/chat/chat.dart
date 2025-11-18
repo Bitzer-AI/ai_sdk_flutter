@@ -287,7 +287,9 @@ class Chat {
       (part) {
         if (part is ToolUIPart) {
           // Merge input delta
-          final currentInput = part.input is Map ? Map<String, dynamic>.from(part.input) : <String, dynamic>{};
+          final currentInput = part.input is Map
+              ? Map<String, dynamic>.from(part.input)
+              : <String, dynamic>{};
           currentInput.addAll({chunk.inputTextDelta: chunk.inputTextDelta});
           return ToolUIPart(
             type: part.type,

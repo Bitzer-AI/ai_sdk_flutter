@@ -45,7 +45,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void _initChat() {
     // Initialize the chat with your API endpoint
     final transport = DefaultChatTransport(
-      api: 'https://your-api-endpoint.com/api/chat', // Replace with your endpoint
+      api:
+          'https://your-api-endpoint.com/api/chat', // Replace with your endpoint
     );
 
     final options = ChatOptions(
@@ -169,8 +170,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                   ),
           ),
-          if (_status == ChatStatus.streaming)
-            const LinearProgressIndicator(),
+          if (_status == ChatStatus.streaming) const LinearProgressIndicator(),
           _InputArea(
             controller: _controller,
             onSend: _sendMessage,

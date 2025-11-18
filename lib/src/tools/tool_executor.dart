@@ -39,10 +39,11 @@ class ToolExecutor {
   }
 
   /// Execute a tool by name with the given parameters.
-  /// 
+  ///
   /// Returns the result of the tool execution.
   /// Throws [ToolExecutionException] if the tool is not found or execution fails.
-  Future<dynamic> executeTool(String toolName, Map<String, dynamic> parameters) async {
+  Future<dynamic> executeTool(
+      String toolName, Map<String, dynamic> parameters) async {
     final tool = _tools[toolName];
     if (tool == null) {
       throw ToolExecutionException('Tool not found: $toolName');

@@ -6,7 +6,7 @@ import '../models/ui_message_chunk.dart';
 import 'chat_transport.dart';
 
 /// Default HTTP-based chat transport using the AI SDK data stream protocol.
-/// 
+///
 /// This transport sends messages via HTTP POST and receives streaming
 /// responses in Server-Sent Events (SSE) format with JSON chunks.
 class DefaultChatTransport implements ChatTransport {
@@ -14,7 +14,7 @@ class DefaultChatTransport implements ChatTransport {
   final http.Client? httpClient;
   final Map<String, String>? defaultHeaders;
   final Map<String, dynamic>? defaultBody;
-  
+
   /// Optional function to prepare the request before sending
   final Map<String, dynamic>? Function({
     required String id,
@@ -48,11 +48,11 @@ class DefaultChatTransport implements ChatTransport {
     Map<String, dynamic>? metadata,
   }) async* {
     final client = httpClient ?? http.Client();
-    
+
     try {
       // Prepare request body
       Map<String, dynamic> requestBody;
-      
+
       if (prepareSendMessagesRequest != null) {
         final customBody = prepareSendMessagesRequest!(
           id: chatId,
@@ -121,11 +121,11 @@ class DefaultChatTransport implements ChatTransport {
     Map<String, dynamic>? metadata,
   }) async {
     final client = httpClient ?? http.Client();
-    
+
     try {
       // Prepare request body
       Map<String, dynamic> requestBody;
-      
+
       if (prepareReconnectToStreamRequest != null) {
         final customBody = prepareReconnectToStreamRequest!(chatId: chatId);
         requestBody = customBody ?? {};
@@ -192,9 +192,8 @@ class DefaultChatTransport implements ChatTransport {
 
   /// Parses Server-Sent Events stream and yields UIMessageChunk objects
   Stream<UIMessageChunk> _parseSSEStream(Stream<List<int>> byteStream) async* {
-    final lines = byteStream
-        .transform(utf8.decoder)
-        .transform(const LineSplitter());
+    final lines =
+        byteStream.transform(utf8.decoder).transform(const LineSplitter());
 
     await for (final line in lines) {
       // Skip empty lines and comments

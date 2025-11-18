@@ -1,7 +1,7 @@
 import 'dart:async';
 
 /// Represents a tool that can be called by the AI.
-/// 
+///
 /// Tools are functions that the AI can invoke to perform actions
 /// or retrieve information.
 abstract class Tool<TParameters, TResult> {
@@ -21,12 +21,12 @@ abstract class Tool<TParameters, TResult> {
   });
 
   /// Execute the tool with the given parameters.
-  /// 
+  ///
   /// This method should be overridden by concrete tool implementations.
   FutureOr<TResult> execute(TParameters parameters);
 
   /// Convert raw JSON parameters to the typed parameter object.
-  /// 
+  ///
   /// This method should be overridden to provide type-safe parameter parsing.
   TParameters parseParameters(Map<String, dynamic> json);
 
@@ -51,7 +51,8 @@ class FunctionTool extends Tool<Map<String, dynamic>, dynamic> {
     required super.name,
     required super.description,
     required super.parametersSchema,
-    required FutureOr<dynamic> Function(Map<String, dynamic> parameters) execute,
+    required FutureOr<dynamic> Function(Map<String, dynamic> parameters)
+        execute,
   }) : _execute = execute;
 
   @override
