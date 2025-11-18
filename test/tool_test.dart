@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:ai_sdk_flutter/ai_sdk_flutter.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Tool', () {

@@ -16,5 +16,9 @@ export 'src/transport/default_chat_transport.dart';
 // Chat client exports
 export 'src/chat/chat.dart';
 
+// Tool execution exports
+export 'src/tools/tool.dart';
+export 'src/tools/tool_executor.dart';
+
 // Utilities
 export 'src/utils/id_generator.dart';

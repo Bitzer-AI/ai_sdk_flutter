@@ -287,7 +287,7 @@ class _MessageBubble extends StatelessWidget {
           children: [
             const Icon(Icons.attach_file, size: 16),
             const SizedBox(width: 8),
-            Expanded(child: Text(part.fileName)),
+            Expanded(child: Text(part.filename ?? "file")),
           ],
         ),
       );

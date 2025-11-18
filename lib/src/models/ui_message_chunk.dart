@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'ui_message_part.dart';
 
 /// Represents a streaming chunk from the AI SDK data stream protocol
 abstract class UIMessageChunk extends Equatable {
@@ -198,13 +197,13 @@ class ToolInputStartChunk extends UIMessageChunk {
   final String toolCallId;
   final String toolName;
   final String? title;
-  final bool? dynamic;
+  final bool? isDynamic;
 
   const ToolInputStartChunk({
     required this.toolCallId,
     required this.toolName,
     this.title,
-    this.dynamic,
+    this.isDynamic,
   });
 
   factory ToolInputStartChunk.fromJson(Map<String, dynamic> json) {
@@ -212,12 +211,12 @@ class ToolInputStartChunk extends UIMessageChunk {
       toolCallId: json['toolCallId'] as String,
       toolName: json['toolName'] as String,
       title: json['title'] as String?,
-      dynamic: json['dynamic'] as bool?,
+      isDynamic: json['dynamic'] as bool?,
     );
   }
 
   @override
-  List<Object?> get props => [type, toolCallId, toolName, title, dynamic];
+  List<Object?> get props => [type, toolCallId, toolName, title, isDynamic];
 }
 
 class ToolInputDeltaChunk extends UIMessageChunk {

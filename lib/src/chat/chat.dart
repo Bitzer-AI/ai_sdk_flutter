@@ -137,6 +137,7 @@ class Chat {
       _updateStatus(ChatStatus.submitted);
 
       final stream = _transport.sendMessages(
+        trigger: 'user-message',
         chatId: options.id,
         messages: _messages,
         body: options.body,
@@ -287,7 +288,7 @@ class Chat {
         if (part is ToolUIPart) {
           // Merge input delta
           final currentInput = part.input is Map ? Map<String, dynamic>.from(part.input) : <String, dynamic>{};
-          currentInput.addAll(chunk.delta);
+          currentInput.addAll({chunk.inputTextDelta: chunk.inputTextDelta});
           return ToolUIPart(
             type: part.type,
             toolCallId: part.toolCallId,
@@ -339,7 +340,7 @@ class Chat {
 
   void _handleReasoningStart(ReasoningStartChunk chunk) {
     _addOrUpdatePart(
-      ReasoningUIPart(reasoning: '', state: TextState.streaming),
+      ReasoningUIPart(text: '', state: TextState.streaming),
       identifier: 'reasoning-0',
     );
   }
@@ -350,7 +351,7 @@ class Chat {
       (part) {
         if (part is ReasoningUIPart) {
           return ReasoningUIPart(
-            reasoning: part.reasoning + chunk.delta,
+            text: part.text + chunk.delta,
             state: TextState.streaming,
           );
         }
@@ -365,7 +366,7 @@ class Chat {
       (part) {
         if (part is ReasoningUIPart) {
           return ReasoningUIPart(
-            reasoning: part.reasoning,
+            text: part.text,
             state: TextState.done,
           );
         }
@@ -377,32 +378,38 @@ class Chat {
   void _handleFileChunk(FileChunk chunk) {
     _addOrUpdatePart(
       FileUIPart(
-        name: chunk.name,
-        contentType: chunk.contentType,
         url: chunk.url,
+        mediaType: chunk.mediaType,
       ),
     );
   }
 
   void _handleSourceUrl(SourceUrlChunk chunk) {
     _addOrUpdatePart(
-      SourceUrlUIPart(url: chunk.url),
+      SourceUrlUIPart(
+        sourceId: chunk.url,
+        url: chunk.url,
+      ),
     );
   }
 
   void _handleSourceDocument(SourceDocumentChunk chunk) {
     _addOrUpdatePart(
       SourceDocumentUIPart(
+        sourceId: chunk.sourceId,
+        mediaType: chunk.mediaType,
         title: chunk.title,
-        url: chunk.url,
-        metadata: chunk.metadata,
+        filename: chunk.filename,
       ),
     );
   }
 
   void _handleDataChunk(DataChunk chunk) {
     _addOrUpdatePart(
-      DataUIPart(data: chunk.data),
+      DataUIPart(
+        type: 'data',
+        data: chunk.data,
+      ),
     );
   }
 
@@ -413,7 +420,7 @@ class Chat {
   }
 
   void _handleErrorChunk(ErrorChunk chunk) {
-    _handleError(Exception(chunk.error));
+    _handleError(Exception(chunk.errorText));
   }
 
   void _handleMessageMetadata(MessageMetadataChunk chunk) {
@@ -422,7 +429,7 @@ class Chat {
         id: _currentStreamingMessage!.id,
         role: _currentStreamingMessage!.role,
         parts: _currentStreamingMessage!.parts,
-        metadata: chunk.metadata,
+        metadata: chunk.messageMetadata,
       );
       _updateMessage(_currentStreamingMessage!);
     }

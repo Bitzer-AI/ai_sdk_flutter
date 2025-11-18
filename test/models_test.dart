@@ -118,25 +118,25 @@ void main() {
 
     test('FileUIPart has correct properties', () {
       final part = FileUIPart(
-        name: 'document.pdf',
-        contentType: 'application/pdf',
         url: 'https://example.com/doc.pdf',
+        mediaType: 'application/pdf',
+        filename: 'document.pdf',
       );
 
       expect(part.type, 'file');
-      expect(part.name, 'document.pdf');
-      expect(part.contentType, 'application/pdf');
+      expect(part.filename, 'document.pdf');
+      expect(part.mediaType, 'application/pdf');
       expect(part.url, 'https://example.com/doc.pdf');
     });
 
     test('ReasoningUIPart has correct properties', () {
       final part = ReasoningUIPart(
-        reasoning: 'Let me think...',
+        text: 'Let me think...',
         state: TextState.done,
       );
 
       expect(part.type, 'reasoning');
-      expect(part.reasoning, 'Let me think...');
+      expect(part.text, 'Let me think...');
       expect(part.state, TextState.done);
     });
   });
@@ -166,8 +166,8 @@ void main() {
   group('ToolInvocation', () {
     test('state queries work correctly', () {
       final invocation1 = ToolInvocation(
-        type: 'tool-test',
         toolCallId: 'call_1',
+        toolName: 'test',
         state: ToolCallState.input_streaming,
       );
       expect(invocation1.isInputStreaming, true);
@@ -175,17 +175,17 @@ void main() {
       expect(invocation1.hasOutputAvailable, false);
 
       final invocation2 = ToolInvocation(
-        type: 'tool-test',
         toolCallId: 'call_2',
+        toolName: 'test',
         state: ToolCallState.output_available,
-        result: {'answer': 42},
+        output: {'answer': 42},
       );
       expect(invocation2.hasOutputAvailable, true);
-      expect(invocation2.result, {'answer': 42});
+      expect(invocation2.output, {'answer': 42});
 
       final invocation3 = ToolInvocation(
-        type: 'tool-test',
         toolCallId: 'call_3',
+        toolName: 'test',
         state: ToolCallState.output_error,
         errorText: 'Failed',
       );

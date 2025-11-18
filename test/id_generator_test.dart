@@ -4,21 +4,21 @@ import 'package:ai_sdk_flutter/ai_sdk_flutter.dart';
 void main() {
   group('IdGenerator', () {
     test('generate creates unique IDs', () {
-      final id1 = IdGenerator.generate('test');
-      final id2 = IdGenerator.generate('test');
+      final id1 = IdGenerator.generate(prefix: 'test');
+      final id2 = IdGenerator.generate(prefix: 'test');
 
       expect(id1, isNot(equals(id2)));
-      expect(id1, startsWith('test_'));
-      expect(id2, startsWith('test_'));
+      expect(id1, startsWith('test'));
+      expect(id2, startsWith('test'));
+      expect(id1.length, greaterThan(4));
     });
 
     test('generate respects size parameter', () {
-      final id = IdGenerator.generate('test', size: 10);
-      final parts = id.split('_');
+      final id = IdGenerator.generate(prefix: 'test', size: 10);
 
-      expect(parts.length, 2);
-      expect(parts[0], 'test');
-      expect(parts[1].length, 10);
+      expect(id.length, 14); // 'test' (4) + 10 random chars
+      expect(id, startsWith('test'));
+      expect(id.substring(4).length, 10);
     });
 
     test('generateMessageId creates valid message IDs', () {
