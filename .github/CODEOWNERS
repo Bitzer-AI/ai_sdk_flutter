@@ -1,0 +1,21 @@
+# CODEOWNERS for ai_sdk_flutter
+# This file defines individuals or teams responsible for code in this repository.
+# When someone opens a pull request that modifies code that has a code owner,
+# that code owner will automatically be requested for review.
+
+# Default owner for everything in the repo
+# Replace @billmalea with your GitHub username or team
+* @billmalea
+
+# Specific paths (examples - customize as needed)
+# /lib/src/chat/ @billmalea
+# /lib/src/models/ @billmalea
+# /lib/src/transport/ @billmalea
+# /test/ @billmalea
+
+# Documentation
+# *.md @billmalea
+
+# CI/CD and build configuration
+# .github/ @billmalea
+# pubspec.yaml @billmalea
