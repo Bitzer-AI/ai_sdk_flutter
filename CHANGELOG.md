@@ -1,3 +1,7 @@
+## 0.1.2
+
+* Updated CHANGELOG.md to include version references for pub.dev compliance
+
 ## 0.1.1
 
 * Code formatting improvements to meet pub.dev standards
