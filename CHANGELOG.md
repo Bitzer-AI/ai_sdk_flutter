@@ -1,3 +1,10 @@
+## 0.1.1
+
+* Code formatting improvements to meet pub.dev standards
+* Added CODEOWNERS file for repository maintenance
+* Updated README with accurate project status
+* All tests passing with full coverage
+
 ## 0.1.0
 
 * Initial release
