@@ -20,6 +20,7 @@ class Chat {
   ChatStatus _status = ChatStatus.ready;
   StreamSubscription<UIMessageChunk>? _streamSubscription;
   UIMessage? _currentStreamingMessage;
+  final Map<String, StringBuffer> _toolInputBuffers = {};
 
   /// Stream of messages in the conversation.
   Stream<List<UIMessage>> get messagesStream => _messagesController.stream;
@@ -206,8 +207,11 @@ class Chat {
       case 'source-document':
         _handleSourceDocument(chunk as SourceDocumentChunk);
         break;
-      case 'data':
-        _handleDataChunk(chunk as DataChunk);
+      case 'start-step':
+        _handleStartStep(chunk as StartStepChunk);
+        break;
+      case 'finish-step':
+        // No action needed for finish-step
         break;
       case 'finish':
         _handleFinishChunk(chunk as FinishChunk);
@@ -218,10 +222,17 @@ class Chat {
       case 'message-metadata':
         _handleMessageMetadata(chunk as MessageMetadataChunk);
         break;
+      default:
+        if (chunk is DataChunk) {
+          _handleDataChunk(chunk);
+        }
+        break;
     }
   }
 
   void _handleStartChunk(StartChunk chunk) {
+    _partIdentifiers.clear();
+    _toolInputBuffers.clear();
     _currentStreamingMessage = UIMessage(
       id: chunk.messageId ?? IdGenerator.generateMessageId(),
       role: MessageRole.assistant,
@@ -231,16 +242,20 @@ class Chat {
     _addMessage(_currentStreamingMessage!);
   }
 
+  void _handleStartStep(StartStepChunk chunk) {
+    _addOrUpdatePart(const StepStartUIPart());
+  }
+
   void _handleTextStart(TextStartChunk chunk) {
     _addOrUpdatePart(
       TextUIPart(text: '', state: TextState.streaming),
-      identifier: 'text-0',
+      identifier: 'text-${chunk.id}',
     );
   }
 
   void _handleTextDelta(TextDeltaChunk chunk) {
     _updatePartByIdentifier(
-      'text-0',
+      'text-${chunk.id}',
       (part) {
         if (part is TextUIPart) {
           return TextUIPart(
@@ -255,7 +270,7 @@ class Chat {
 
   void _handleTextEnd(TextEndChunk chunk) {
     _updatePartByIdentifier(
-      'text-0',
+      'text-${chunk.id}',
       (part) {
         if (part is TextUIPart) {
           return TextUIPart(
@@ -269,6 +284,7 @@ class Chat {
   }
 
   void _handleToolInputStart(ToolInputStartChunk chunk) {
+    _toolInputBuffers[chunk.toolCallId] = StringBuffer();
     final toolPart = ToolUIPart(
       type: 'tool-${chunk.toolName}',
       toolCallId: chunk.toolCallId,
@@ -282,20 +298,16 @@ class Chat {
   }
 
   void _handleToolInputDelta(ToolInputDeltaChunk chunk) {
+    _toolInputBuffers[chunk.toolCallId]?.write(chunk.inputTextDelta);
     _updatePartByIdentifier(
       'tool-${chunk.toolCallId}',
       (part) {
         if (part is ToolUIPart) {
-          // Merge input delta
-          final currentInput = part.input is Map
-              ? Map<String, dynamic>.from(part.input)
-              : <String, dynamic>{};
-          currentInput.addAll({chunk.inputTextDelta: chunk.inputTextDelta});
           return ToolUIPart(
             type: part.type,
             toolCallId: part.toolCallId,
             state: ToolCallState.input_streaming,
-            input: currentInput,
+            input: _toolInputBuffers[chunk.toolCallId]?.toString(),
             output: part.output,
           );
         }
@@ -305,6 +317,7 @@ class Chat {
   }
 
   void _handleToolInputAvailable(ToolInputAvailableChunk chunk) {
+    _toolInputBuffers.remove(chunk.toolCallId);
     _updatePartByIdentifier(
       'tool-${chunk.toolCallId}',
       (part) {
@@ -343,13 +356,13 @@ class Chat {
   void _handleReasoningStart(ReasoningStartChunk chunk) {
     _addOrUpdatePart(
       ReasoningUIPart(text: '', state: TextState.streaming),
-      identifier: 'reasoning-0',
+      identifier: 'reasoning-${chunk.id}',
     );
   }
 
   void _handleReasoningDelta(ReasoningDeltaChunk chunk) {
     _updatePartByIdentifier(
-      'reasoning-0',
+      'reasoning-${chunk.id}',
       (part) {
         if (part is ReasoningUIPart) {
           return ReasoningUIPart(
@@ -364,7 +377,7 @@ class Chat {
 
   void _handleReasoningEnd(ReasoningEndChunk chunk) {
     _updatePartByIdentifier(
-      'reasoning-0',
+      'reasoning-${chunk.id}',
       (part) {
         if (part is ReasoningUIPart) {
           return ReasoningUIPart(
@@ -389,8 +402,10 @@ class Chat {
   void _handleSourceUrl(SourceUrlChunk chunk) {
     _addOrUpdatePart(
       SourceUrlUIPart(
-        sourceId: chunk.url,
+        sourceId: chunk.sourceId,
         url: chunk.url,
+        title: chunk.title,
+        providerMetadata: chunk.providerMetadata,
       ),
     );
   }
@@ -409,7 +424,8 @@ class Chat {
   void _handleDataChunk(DataChunk chunk) {
     _addOrUpdatePart(
       DataUIPart(
-        type: 'data',
+        type: chunk.type,
+        id: chunk.id,
         data: chunk.data,
       ),
     );
@@ -440,6 +456,7 @@ class Chat {
   void _handleStreamComplete() {
     _streamSubscription = null;
     _currentStreamingMessage = null;
+    _toolInputBuffers.clear();
     _updateStatus(ChatStatus.ready);
   }
 
@@ -449,6 +466,7 @@ class Chat {
     options.onError?.call(error);
     _streamSubscription = null;
     _currentStreamingMessage = null;
+    _toolInputBuffers.clear();
   }
 
   void _addMessage(UIMessage message) {

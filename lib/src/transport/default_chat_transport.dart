@@ -216,7 +216,12 @@ class DefaultChatTransport implements ChatTransport {
           final chunk = UIMessageChunk.fromJson(json);
           yield chunk;
         } catch (e) {
-          // Skip malformed chunks
+          // Log malformed chunks in debug mode, skip in release
+          assert(() {
+            // ignore: avoid_print
+            print('[ai_sdk_flutter] SSE parse error: $e\nRaw data: $data');
+            return true;
+          }());
           continue;
         }
       }

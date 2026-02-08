@@ -83,7 +83,10 @@ class TextUIPart extends UIMessagePart {
     return TextUIPart(
       text: json['text'] as String,
       state: json['state'] != null
-          ? TextState.values.firstWhere((s) => s.name == json['state'])
+          ? TextState.values.firstWhere(
+              (s) => s.name == json['state'],
+              orElse: () => TextState.done,
+            )
           : null,
       providerMetadata: json['providerMetadata'] as Map<String, dynamic>?,
     );
@@ -137,7 +140,10 @@ class ReasoningUIPart extends UIMessagePart {
     return ReasoningUIPart(
       text: json['text'] as String,
       state: json['state'] != null
-          ? TextState.values.firstWhere((s) => s.name == json['state'])
+          ? TextState.values.firstWhere(
+              (s) => s.name == json['state'],
+              orElse: () => TextState.done,
+            )
           : null,
       providerMetadata: json['providerMetadata'] as Map<String, dynamic>?,
     );
@@ -221,7 +227,9 @@ class ToolUIPart extends UIMessagePart {
       type: json['type'] as String,
       toolCallId: json['toolCallId'] as String,
       state: ToolCallState.values.firstWhere(
-          (s) => s.name == json['state'].toString().replaceAll('-', '_')),
+        (s) => s.name == json['state'].toString().replaceAll('-', '_'),
+        orElse: () => ToolCallState.input_streaming,
+      ),
       input: json['input'],
       output: json['output'],
       errorText: json['errorText'] as String?,
