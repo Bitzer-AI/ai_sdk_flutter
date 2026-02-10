@@ -21,6 +21,7 @@ class Chat {
   StreamSubscription<UIMessageChunk>? _streamSubscription;
   UIMessage? _currentStreamingMessage;
   final Map<String, StringBuffer> _toolInputBuffers = {};
+  int _stepIndex = 0;
 
   /// Stream of messages in the conversation.
   Stream<List<UIMessage>> get messagesStream => _messagesController.stream;
@@ -154,9 +155,9 @@ class Chat {
 
   Future<void> _handleStream(Stream<UIMessageChunk> stream) async {
     _streamSubscription = stream.listen(
-      (chunk) => _processChunk(chunk),
-      onError: (error) => _handleError(error),
-      onDone: () => _handleStreamComplete(),
+      _processChunk,
+      onError: _handleError,
+      onDone: _handleStreamComplete,
       cancelOnError: false,
     );
   }
@@ -233,6 +234,7 @@ class Chat {
   void _handleStartChunk(StartChunk chunk) {
     _partIdentifiers.clear();
     _toolInputBuffers.clear();
+    _stepIndex = 0;
     _currentStreamingMessage = UIMessage(
       id: chunk.messageId ?? IdGenerator.generateMessageId(),
       role: MessageRole.assistant,
@@ -243,19 +245,20 @@ class Chat {
   }
 
   void _handleStartStep(StartStepChunk chunk) {
+    _stepIndex++;
     _addOrUpdatePart(const StepStartUIPart());
   }
 
   void _handleTextStart(TextStartChunk chunk) {
     _addOrUpdatePart(
       TextUIPart(text: '', state: TextState.streaming),
-      identifier: 'text-${chunk.id}',
+      identifier: 'text-$_stepIndex-${chunk.id}',
     );
   }
 
   void _handleTextDelta(TextDeltaChunk chunk) {
     _updatePartByIdentifier(
-      'text-${chunk.id}',
+      'text-$_stepIndex-${chunk.id}',
       (part) {
         if (part is TextUIPart) {
           return TextUIPart(
@@ -270,7 +273,7 @@ class Chat {
 
   void _handleTextEnd(TextEndChunk chunk) {
     _updatePartByIdentifier(
-      'text-${chunk.id}',
+      'text-$_stepIndex-${chunk.id}',
       (part) {
         if (part is TextUIPart) {
           return TextUIPart(
@@ -356,13 +359,13 @@ class Chat {
   void _handleReasoningStart(ReasoningStartChunk chunk) {
     _addOrUpdatePart(
       ReasoningUIPart(text: '', state: TextState.streaming),
-      identifier: 'reasoning-${chunk.id}',
+      identifier: 'reasoning-$_stepIndex-${chunk.id}',
     );
   }
 
   void _handleReasoningDelta(ReasoningDeltaChunk chunk) {
     _updatePartByIdentifier(
-      'reasoning-${chunk.id}',
+      'reasoning-$_stepIndex-${chunk.id}',
       (part) {
         if (part is ReasoningUIPart) {
           return ReasoningUIPart(
@@ -377,7 +380,7 @@ class Chat {
 
   void _handleReasoningEnd(ReasoningEndChunk chunk) {
     _updatePartByIdentifier(
-      'reasoning-${chunk.id}',
+      'reasoning-$_stepIndex-${chunk.id}',
       (part) {
         if (part is ReasoningUIPart) {
           return ReasoningUIPart(
