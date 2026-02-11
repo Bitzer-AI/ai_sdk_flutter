@@ -211,7 +211,7 @@ class ToolUIPart extends UIMessagePart {
     return {
       'type': type,
       'toolCallId': toolCallId,
-      'state': state.name,
+      'state': state.name.replaceAll('_', '-'),
       if (input != null) 'input': input,
       if (output != null) 'output': output,
       if (errorText != null) 'errorText': errorText,
