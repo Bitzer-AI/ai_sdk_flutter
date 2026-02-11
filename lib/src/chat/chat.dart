@@ -97,16 +97,34 @@ class Chat {
   }
 
   /// Add a tool output to the conversation.
+  ///
+  /// Works both during streaming (when [_currentStreamingMessage] is set) and
+  /// after streaming completes (for client-side tools like requestUserInfo
+  /// where the user acts after the stream finishes).
   Future<void> addToolResult({
     required String toolCallId,
     required dynamic result,
   }) async {
-    if (_currentStreamingMessage == null) {
-      throw StateError('No active streaming message');
+    // Find the message containing the tool call — either active stream or
+    // committed messages (for client-side tools handled after stream ends).
+    UIMessage? targetMessage = _currentStreamingMessage;
+    if (targetMessage == null) {
+      for (var i = _messages.length - 1; i >= 0; i--) {
+        final m = _messages[i];
+        if (m.role == MessageRole.assistant &&
+            m.parts.any(
+                (p) => p is ToolUIPart && p.toolCallId == toolCallId)) {
+          targetMessage = m;
+          break;
+        }
+      }
+      if (targetMessage == null) {
+        throw StateError('No message found with toolCallId: $toolCallId');
+      }
     }
 
     // Find and update the tool part with the result
-    final updatedParts = _currentStreamingMessage!.parts.map((part) {
+    final updatedParts = targetMessage.parts.map((part) {
       if (part is ToolUIPart && part.toolCallId == toolCallId) {
         return ToolUIPart(
           type: part.type,
@@ -119,14 +137,17 @@ class Chat {
       return part;
     }).toList();
 
-    _currentStreamingMessage = UIMessage(
-      id: _currentStreamingMessage!.id,
-      role: _currentStreamingMessage!.role,
+    final updatedMessage = UIMessage(
+      id: targetMessage.id,
+      role: targetMessage.role,
       parts: updatedParts,
-      metadata: _currentStreamingMessage!.metadata,
+      metadata: targetMessage.metadata,
     );
 
-    _updateMessage(_currentStreamingMessage!);
+    if (_currentStreamingMessage != null) {
+      _currentStreamingMessage = updatedMessage;
+    }
+    _updateMessage(updatedMessage);
 
     // If sendToolResults is enabled, continue the conversation
     if (options.sendToolResults) {
