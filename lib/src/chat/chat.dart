@@ -256,13 +256,24 @@ class Chat {
     _partIdentifiers.clear();
     _toolInputBuffers.clear();
     _stepIndex = 0;
-    _currentStreamingMessage = UIMessage(
-      id: chunk.messageId ?? IdGenerator.generateMessageId(),
-      role: MessageRole.assistant,
-      parts: [],
-      metadata: chunk.messageMetadata,
-    );
-    _addMessage(_currentStreamingMessage!);
+
+    final messageId = chunk.messageId ?? IdGenerator.generateMessageId();
+
+    // Check if a message with this ID already exists (continuation after
+    // a client-side tool result like requestUserInfo). Preserve existing
+    // parts so the tool output artifact stays visible.
+    final existingIndex = _messages.indexWhere((m) => m.id == messageId);
+    if (existingIndex != -1) {
+      _currentStreamingMessage = _messages[existingIndex];
+    } else {
+      _currentStreamingMessage = UIMessage(
+        id: messageId,
+        role: MessageRole.assistant,
+        parts: [],
+        metadata: chunk.messageMetadata,
+      );
+      _addMessage(_currentStreamingMessage!);
+    }
   }
 
   void _handleStartStep(StartStepChunk chunk) {
